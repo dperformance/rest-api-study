@@ -20,7 +20,7 @@ public class App {
             InetSocketAddress address = new InetSocketAddress(App.PORT);
             HttpServer httpServer = HttpServer.create(address, 0);
 
-            HttpHandler handler = new DemoHttpHandler();
+            HttpHandler handler = new TaskHttpHandler();
             httpServer.createContext("/", handler);
             httpServer.start();
         } catch (IOException e) {
