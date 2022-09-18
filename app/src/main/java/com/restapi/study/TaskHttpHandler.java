@@ -1,6 +1,5 @@
 package com.restapi.study;
 
-import com.restapi.study.models.Task;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
@@ -18,7 +17,6 @@ public class TaskHttpHandler implements HttpHandler {
     private final Map<Long, String> tasks = new HashMap<>();
 
     public TaskHttpHandler() {
-
         tasks.put(1L, "Dyson");
         tasks.put(2L, "qwer");
         tasks.put(3L, "asdf");
@@ -59,9 +57,8 @@ public class TaskHttpHandler implements HttpHandler {
             }
         }
 
-
-
     }
+
     // response format
     private void responseSend(String content, HttpExchange exchange) throws IOException {
         exchange.sendResponseHeaders(200, content.getBytes(StandardCharsets.UTF_8).length);
