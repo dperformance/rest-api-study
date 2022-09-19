@@ -1,4 +1,4 @@
-package com.restapi.study.models;
+package com.restapi.study.domain;
 
 public class Task {
     private Long id;
