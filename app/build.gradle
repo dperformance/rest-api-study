@@ -11,8 +11,8 @@ plugins {
     id 'application'
 
     // Spring
-    id 'org.springframework.boot' version '2.7.1'
-   	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '2.3.5.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
 }
 
 repositories {
@@ -25,7 +25,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
 
     // AssertJ
-    testImplementation('org.assertj:assertj-core:3.18.1')
+    testImplementation 'org.assertj:assertj-core:3.18.1'
 
     // Use JUnit Jupiter Engine for testing.
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
@@ -38,8 +38,19 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-core:2.13.3'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
 
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+
     // Spring Web
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Spring Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Spring Data JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2'
 
     // Spring Dev Tools
     implementation 'org.springframework.boot:spring-boot-devtools'
