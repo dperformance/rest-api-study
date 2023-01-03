@@ -7,17 +7,36 @@
 // 사용자 주문 -> 확인 -> 배송 등 처리
 
 // Product
-// 0. 식별자 - identifier (ID)
-// 1. 제품 이름 - 쥐돌이 장난감
-// 2. 제조사 - 덕구월드
-// 3. 가격 - 5,000(판매가)
-// 4. 이미지 - static, CDN => image URL
+// 0. 식별자(id) - identifier
+// 1. 제품 이름(name) - 아우터
+// 2. 제조사(maker) - 캐나다구스
+// 3. 가격(price) - 1,000,000
+// 4. 이미지(image) - static, CDN => image URL
 package com.restapi.study.domain;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor
 public class Product {
+    private Long id;
 
+    private String name;
 
-    public String getName() {
-        return "";
+    private String maker;
+
+    private Integer price;
+
+    private String imageUrl;
+
+    @Builder
+    public Product(Long id, String name, String maker, Integer price, String imageUrl) {
+        this.id = id;
+        this.name = name;
+        this.maker = maker;
+        this.price = price;
+        this.imageUrl = imageUrl;
     }
 }
