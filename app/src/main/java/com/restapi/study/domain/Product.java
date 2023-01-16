@@ -14,6 +14,7 @@
 // 4. 이미지(image) - static, CDN => image URL
 package com.restapi.study.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
