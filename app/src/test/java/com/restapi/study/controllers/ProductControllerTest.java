@@ -2,6 +2,7 @@ package com.restapi.study.controllers;
 
 import com.restapi.study.application.ProductService;
 import com.restapi.study.domain.Product;
+import com.restapi.study.exception.ProductNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -10,18 +11,28 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
 class ProductControllerTest {
 
+    private static final Long EXISTED_ID = 1L;
+
+    private static final Long NOT_EXISTED_ID = 1000L;
     @Autowired
     private MockMvc mockMvc;
 
@@ -31,22 +42,42 @@ class ProductControllerTest {
     @BeforeEach
     void setUp() {
         Product product= Product.builder()
-                .id(1L)
-                .name("outer")
-                .maker("goose")
-                .price(10000)
-                .imageUrl("goose.png")
-                .build();
+                                .id(EXISTED_ID)
+                                .name("outer")
+                                .maker("goose")
+                                .price(10000)
+                                .imageUrl("goose.png")
+                                .build();
 
-        given(productService.getProducts()).willReturn(List.of(product));
+        given(productService.getProducts())
+                .willReturn(List.of(product));
 
-        given(productService.getProduct(1L)).willReturn(product);
+        given(productService.getProduct(EXISTED_ID))
+                .willReturn(product);
 
-//        given(productService.getProduct(100L)).willThrow()
+        given(productService.getProduct(NOT_EXISTED_ID))
+                .willThrow(new ProductNotFoundException(NOT_EXISTED_ID));
+
+        given(productService.createProduct(any(Product.class)))
+                .willReturn(product);
+
+        given(productService.updateProduct(eq(EXISTED_ID), any(Product.class)))
+                .will(invocation -> {
+                    Long id = invocation.getArgument(0);
+                    Product source = invocation.getArgument(1);
+                    return new Product(
+                                        id,
+                                        source.getName(),
+                                        source.getMaker(),
+                                        source.getPrice(),
+                                        source.getImageUrl());
+
+                });
+
+
     }
 
     @Test
-    @Disabled
     void list() throws Exception {
         mockMvc.perform(
                 get("/products")
@@ -57,10 +88,9 @@ class ProductControllerTest {
     }
 
     @Test
-    @Disabled
-    void detailWithExsitedProduct() throws Exception {
+    void detailExistedProduct() throws Exception {
         mockMvc.perform(
-                get("/products/1")
+                get("/products/{id}", EXISTED_ID)
                         .accept(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isOk())
@@ -68,12 +98,63 @@ class ProductControllerTest {
     }
 
     @Test
-    void detailWithNotExsitedProduct() throws Exception {
+    void detailWithNotExistedProduct() throws Exception {
         mockMvc.perform(
-                get("/products/100")
+                get("/products/{id}", NOT_EXISTED_ID)
                         .accept(MediaType.APPLICATION_JSON)
         )
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void create() throws Exception {
+        mockMvc.perform(
+                post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"outer\",\"maker\":\"goose\",\"price\":10000,\"imageUrl\":\"goose.png\"}")
+        )
+                .andExpect(status().isCreated())
+                .andExpect(content().string(containsString("goose.png")));
+
+        verify(productService).createProduct(any(Product.class));
+    }
+
+    @Test
+    void updateExistedProduct() throws Exception {
+        mockMvc.perform(
+                patch("/products/{id}", EXISTED_ID)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"outerr\",\"maker\":\"goosee\",\"price\":100000,\"imageUrl\":\"goosee.png\"}")
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("goosee.png")));
+
+        verify(productService).updateProduct(eq(EXISTED_ID), any(Product.class));
+    }
+
+    @Test
+    void updateNotExistedId() throws Exception {
+        mockMvc.perform(
+                patch("/products/{id}", EXISTED_ID)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"outerr\",\"maker\":\"goosee\",\"price\":100000,\"imageUrl\":\"goosee.png\"}")
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("goosee.png")));
+
+        verify(productService).updateProduct(eq(EXISTED_ID), any(Product.class));
+    }
+
+    @Test
+    void deleteExistedId() throws Exception {
+        mockMvc.perform(
+          delete("/products/{id}", EXISTED_ID)
+        )
+                .andExpect(status().isNoContent());
+
+        verify(productService).deleteProduct(eq(EXISTED_ID));
     }
 
 
