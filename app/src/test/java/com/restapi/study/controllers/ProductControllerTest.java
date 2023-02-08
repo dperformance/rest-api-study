@@ -74,6 +74,12 @@ class ProductControllerTest {
 
                 });
 
+        given(productService.updateProduct(eq(NOT_EXISTED_ID), any(Product.class)))
+                .willThrow(new ProductNotFoundException(NOT_EXISTED_ID));
+
+        given(productService.deleteProduct(NOT_EXISTED_ID))
+                .willThrow(new ProductNotFoundException(NOT_EXISTED_ID));
+
 
     }
 
@@ -136,15 +142,13 @@ class ProductControllerTest {
     @Test
     void updateNotExistedId() throws Exception {
         mockMvc.perform(
-                patch("/products/{id}", EXISTED_ID)
+                patch("/products/{id}", NOT_EXISTED_ID)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"outerr\",\"maker\":\"goosee\",\"price\":100000,\"imageUrl\":\"goosee.png\"}")
         )
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("goosee.png")));
+                .andExpect(status().isNotFound());
 
-        verify(productService).updateProduct(eq(EXISTED_ID), any(Product.class));
     }
 
     @Test
@@ -155,6 +159,16 @@ class ProductControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(productService).deleteProduct(eq(EXISTED_ID));
+    }
+
+    @Test
+    void deleteNotExistedId() throws Exception {
+        mockMvc.perform(
+                delete("/products/{id}", NOT_EXISTED_ID)
+        )
+                .andExpect(status().isNotFound());
+
+        verify(productService).deleteProduct(eq(NOT_EXISTED_ID));
     }
 
 

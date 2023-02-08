@@ -23,6 +23,7 @@ public class ProductService {
         return null;
     }
 
-    public void deleteProduct(long id) {
+    public Product deleteProduct(long id) {
+        return null;
     }
 }
