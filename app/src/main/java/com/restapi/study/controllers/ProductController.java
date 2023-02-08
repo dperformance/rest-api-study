@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -32,25 +33,29 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public Product detail(@PathVariable Long id) {
+    public Product detail(
+            @PathVariable Long id) {
         return productService.getProduct(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product create(@RequestBody Product product) {
+    public Product create(
+            @RequestBody @Valid Product product) {
         return productService.createProduct(product);
     }
 
     @PatchMapping("/{id}")
-    public Product update(@PathVariable Long id, @RequestBody Product product) {
+    public Product update(
+            @PathVariable Long id, @RequestBody @Valid Product product) {
         return productService.updateProduct(id, product);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT
     )
-    public Product delete(@PathVariable Long id) {
+    public Product delete(
+            @PathVariable Long id) {
        return productService.deleteProduct(id);
     }
 }

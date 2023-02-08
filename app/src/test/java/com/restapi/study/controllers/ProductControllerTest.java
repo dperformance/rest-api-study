@@ -122,9 +122,19 @@ class ProductControllerTest {
 
         verify(productService).createProduct(any(Product.class));
     }
+    @Test
+    void createWithInvalidAttribute() throws Exception {
+        mockMvc.perform(
+                post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"\",\"maker\":\"\",\"price\":10000,\"imageUrl\":\"goose.png\"}")
+
+        )
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
-    void updateExistedProduct() throws Exception {
+    void updateExistedId() throws Exception {
         mockMvc.perform(
                 patch("/products/{id}", EXISTED_ID)
                         .accept(MediaType.APPLICATION_JSON)
@@ -146,6 +156,18 @@ class ProductControllerTest {
                         .content("{\"name\":\"outerr\",\"maker\":\"goosee\",\"price\":100000,\"imageUrl\":\"goosee.png\"}")
         )
                 .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    void updateWithInvalidAttribute() throws Exception {
+        mockMvc.perform(
+                patch("/products/{id}", EXISTED_ID)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"\",\"maker\":\"\",\"price\":0,\"imageUrl\":\"goosee.png\"}")
+        )
+                .andExpect(status().isBadRequest());
 
     }
 
