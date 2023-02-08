@@ -29,4 +29,28 @@ class ProductTest {
         assertThat(product.getPrice()).isEqualTo(5000);
         assertThat(product.getImageUrl()).isNull();
     }
+
+    @Test
+    void change() {
+        Product product = Product.builder()
+                .id(1L)
+                .name("outer")
+                .maker("goose")
+                .price(10000)
+                .imageUrl("goose.png")
+                .build();
+        Product source = Product.builder()
+                .name("아우터")
+                .maker("구스")
+                .price(20000)
+                .imageUrl("구스.png")
+                .build();
+
+        product.changeOf(source);
+
+        assertThat(product.getName()).isEqualTo("아우터");
+        assertThat(product.getMaker()).isEqualTo("구스");
+        assertThat(product.getPrice()).isEqualTo(20000);
+        assertThat(product.getImageUrl()).isEqualTo("구스.png");
+    }
 }

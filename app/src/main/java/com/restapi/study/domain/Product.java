@@ -19,9 +19,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
 @Getter
 @NoArgsConstructor
+@Entity
 public class Product {
+
+    @Id
+    @GeneratedValue
     private Long id;
 
     private String name;
@@ -39,5 +47,12 @@ public class Product {
         this.maker = maker;
         this.price = price;
         this.imageUrl = imageUrl;
+    }
+
+    public void changeOf(Product source) {
+        this.name = source.getName();
+        this.maker = source.getMaker();
+        this.price = source.getPrice();
+        this.imageUrl = source.getImageUrl();
     }
 }
