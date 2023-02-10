@@ -7,13 +7,16 @@
 
 package com.restapi.study.domain;
 
-import org.junit.jupiter.api.BeforeEach;
+import com.github.dozermapper.core.DozerBeanMapperBuilder;
+import com.github.dozermapper.core.Mapper;
+import com.restapi.study.dto.ProductRequestData;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ProductTest {
 
+    private Mapper mapper = DozerBeanMapperBuilder.buildDefault();
     @Test
     void creationWithBuilder() {
         Product product = Product.builder()
@@ -31,7 +34,7 @@ class ProductTest {
     }
 
     @Test
-    void change() {
+    void changeWith() {
         Product product = Product.builder()
                 .id(1L)
                 .name("outer")
@@ -39,14 +42,14 @@ class ProductTest {
                 .price(10000)
                 .imageUrl("goose.png")
                 .build();
-        Product source = Product.builder()
+        ProductRequestData source = ProductRequestData.builder()
                 .name("아우터")
                 .maker("구스")
                 .price(20000)
                 .imageUrl("구스.png")
                 .build();
 
-        product.changeOf(source);
+        product.changeWith(mapper.map(source, Product.class));
 
         assertThat(product.getName()).isEqualTo("아우터");
         assertThat(product.getMaker()).isEqualTo("구스");

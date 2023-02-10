@@ -4,8 +4,15 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
-    PRODUCT_NOT_FOUND(404, "C001", "Product Not Found")
-    ;
+
+    // Common
+    INVALID_INPUT_VALUE(400,"C001", "Invalud Input Value"),
+
+    // Product
+    PRODUCT_NOT_FOUND(404, "P001", "Product Not Found"),
+
+    // User
+    EMAIL_DUPLICATION(400, "U001", "Email is Duplication");
     private int status;
 
     private String code;

@@ -14,7 +14,6 @@
 // 4. 이미지(image) - static, CDN => image URL
 package com.restapi.study.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,8 +21,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @NoArgsConstructor
@@ -34,12 +31,10 @@ public class Product {
     @GeneratedValue
     private Long id;
 
-    @NotBlank
     private String name;
-    @NotBlank
+
     private String maker;
 
-    @NotNull
     private Integer price;
 
     private String imageUrl;
@@ -53,7 +48,7 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    public void changeOf(Product source) {
+    public void changeWith(Product source) {
         this.name = source.getName();
         this.maker = source.getMaker();
         this.price = source.getPrice();

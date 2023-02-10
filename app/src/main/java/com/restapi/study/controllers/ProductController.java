@@ -2,6 +2,7 @@ package com.restapi.study.controllers;
 
 import com.restapi.study.application.ProductService;
 import com.restapi.study.domain.Product;
+import com.restapi.study.dto.ProductRequestData;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,14 +42,15 @@ public class ProductController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Product create(
-            @RequestBody @Valid Product product) {
-        return productService.createProduct(product);
+            @RequestBody @Valid ProductRequestData productRequestData) {
+        return productService.createProduct(productRequestData);
     }
 
     @PatchMapping("/{id}")
     public Product update(
-            @PathVariable Long id, @RequestBody @Valid Product product) {
-        return productService.updateProduct(id, product);
+            @PathVariable Long id,
+            @RequestBody @Valid ProductRequestData productRequestData) {
+        return productService.updateProduct(id, productRequestData);
     }
 
     @DeleteMapping("/{id}")

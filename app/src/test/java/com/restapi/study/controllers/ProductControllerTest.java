@@ -2,6 +2,7 @@ package com.restapi.study.controllers;
 
 import com.restapi.study.application.ProductService;
 import com.restapi.study.domain.Product;
+import com.restapi.study.dto.ProductRequestData;
 import com.restapi.study.exception.ProductNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,13 +57,13 @@ class ProductControllerTest {
         given(productService.getProduct(NOT_EXISTED_ID))
                 .willThrow(new ProductNotFoundException(NOT_EXISTED_ID));
 
-        given(productService.createProduct(any(Product.class)))
+        given(productService.createProduct(any(ProductRequestData.class)))
                 .willReturn(product);
 
-        given(productService.updateProduct(eq(EXISTED_ID), any(Product.class)))
+        given(productService.updateProduct(eq(EXISTED_ID), any(ProductRequestData.class)))
                 .will(invocation -> {
                     Long id = invocation.getArgument(0);
-                    Product source = invocation.getArgument(1);
+                    ProductRequestData source = invocation.getArgument(1);
                     return new Product(
                                         id,
                                         source.getName(),
@@ -72,7 +73,7 @@ class ProductControllerTest {
 
                 });
 
-        given(productService.updateProduct(eq(NOT_EXISTED_ID), any(Product.class)))
+        given(productService.updateProduct(eq(NOT_EXISTED_ID), any(ProductRequestData.class)))
                 .willThrow(new ProductNotFoundException(NOT_EXISTED_ID));
 
         given(productService.deleteProduct(NOT_EXISTED_ID))
@@ -120,7 +121,7 @@ class ProductControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().string(containsString("goose.png")));
 
-        verify(productService).createProduct(any(Product.class));
+        verify(productService).createProduct(any(ProductRequestData.class));
     }
     @Test
     void createWithInvalidAttribute() throws Exception {
@@ -144,7 +145,7 @@ class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("goosee.png")));
 
-        verify(productService).updateProduct(eq(EXISTED_ID), any(Product.class));
+        verify(productService).updateProduct(eq(EXISTED_ID), any(ProductRequestData.class));
     }
 
     @Test

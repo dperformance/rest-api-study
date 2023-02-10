@@ -1,7 +1,10 @@
 package com.restapi.study.application;
 
+import com.github.dozermapper.core.DozerBeanMapperBuilder;
+import com.github.dozermapper.core.Mapper;
 import com.restapi.study.domain.Product;
 import com.restapi.study.domain.ProductRepository;
+import com.restapi.study.dto.ProductRequestData;
 import com.restapi.study.exception.ProductNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,14 +23,15 @@ import static org.mockito.Mockito.verify;
 class ProductServiceTest {
 
     private ProductService productService;
-    private ProductRepository productRepository
+    private final ProductRepository productRepository
             = mock(ProductRepository.class);
     private static final Long EXISTED_ID = 1L;
     private static final Long NOT_EXISTED_ID = 1000L;
 
     @BeforeEach
     void setUp() {
-        productService = new ProductService(productRepository);
+        Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+        productService = new ProductService(mapper, productRepository);
 
         Product product = Product.builder()
                 .id(1L)
@@ -90,8 +94,7 @@ class ProductServiceTest {
 
     @Test
     void createProduct() {
-        Product productData = Product.builder()
-                                .id(1L)
+        ProductRequestData productData = ProductRequestData.builder()
                                 .name("outer")
                                 .maker("goose")
                                 .price(10000)
@@ -108,7 +111,7 @@ class ProductServiceTest {
 
     @Test
     void updateProduct() {
-        Product productData = Product.builder()
+        ProductRequestData productRequestData = ProductRequestData.builder()
                                 .id(1L)
                                 .name("아우터")
                                 .maker("구스")
@@ -116,14 +119,14 @@ class ProductServiceTest {
                                 .imageUrl("goose.png")
                                 .build();
 
-        Product product = productService.updateProduct(EXISTED_ID, productData);
+        Product product = productService.updateProduct(EXISTED_ID, productRequestData);
 
         assertThat(product.getName()).isEqualTo("아우터");
     }
 
     @Test
     void updateProductWithNotExistedId() {
-        Product source = Product.builder()
+        ProductRequestData source = ProductRequestData.builder()
                                 .name("아우터")
                                 .maker("구스")
                                 .price(20000)
