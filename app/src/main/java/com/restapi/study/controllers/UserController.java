@@ -2,12 +2,17 @@ package com.restapi.study.controllers;
 
 import com.restapi.study.application.UserService;
 import com.restapi.study.domain.User;
+import com.restapi.study.dto.UserModificationData;
 import com.restapi.study.dto.UserRegisterData;
 import com.restapi.study.dto.UserResultData;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,7 +51,27 @@ public class UserController {
         return getUserResultData(user);
     }
 
+    @PatchMapping("{id}")
+    public UserResultData update(
+            @PathVariable Long id,
+            @RequestBody @Valid UserModificationData userModificationData)
+    {
+        User user = userService.updateUser(id ,userModificationData);
+
+        return getUserResultData(user);
+    }
+
+    @DeleteMapping("{id}")
+    public void delete(@PathVariable Long id) {
+        userService.deleteUser(id);
+
+    }
+
     private UserResultData getUserResultData(User user) {
+        if (user == null) {
+            return null;
+        }
+
         return UserResultData.builder()
                 .id(user.getId())
                 .email(user.getEmail())

@@ -12,7 +12,8 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND(404, "P001", "Product Not Found"),
 
     // User
-    EMAIL_DUPLICATION(400, "U001", "Email is Duplication");
+    USER_NOT_FOUND(404, "U001", "User Not Found"),
+    EMAIL_DUPLICATION(400, "U002", "Email is Duplication");
     private int status;
 
     private String code;
