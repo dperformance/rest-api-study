@@ -1,9 +1,12 @@
 package com.restapi.study.controllers;
 
+import com.restapi.study.application.AuthenticationService;
 import com.restapi.study.application.ProductService;
 import com.restapi.study.domain.Product;
 import com.restapi.study.dto.ProductRequestData;
+import com.restapi.study.exception.InvalidTokenException;
 import com.restapi.study.exception.ProductNotFoundException;
+import com.restapi.study.global.utils.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +35,21 @@ class ProductControllerTest {
     private static final Long EXISTED_ID = 1L;
 
     private static final Long NOT_EXISTED_ID = 1000L;
+
+    private static final String VALID_TOKEN = "eyJhbGciOiJIUzI1NiJ9." +
+            "eyJ1c2VySWQiOjF9.ZZ3CUl0jxeLGvQ1Js5nG2Ty5qGTlqai5ubDMXZOdaDk";
+
+    private static final String INVALID_TOKEN = "eyJhbGciOiJIUzI1NiJ9." +
+            "eyJ1c2VySWQiOjF9.ZZ3CUl0jxeLGvQ1Js5nG2Ty5qGTlqai5ubDMXZOdaD0";
+
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private ProductService productService;
+
+    @MockBean
+    private AuthenticationService authenticationService;
 
     @BeforeEach
     void setUp() {
@@ -79,6 +92,14 @@ class ProductControllerTest {
         given(productService.deleteProduct(NOT_EXISTED_ID))
                 .willThrow(new ProductNotFoundException(NOT_EXISTED_ID));
 
+        given(authenticationService.parseToken(VALID_TOKEN)).willReturn(EXISTED_ID);
+
+        given(authenticationService.parseToken(INVALID_TOKEN))
+                        .willThrow(new InvalidTokenException(INVALID_TOKEN));
+
+        given(authenticationService.parseToken(null))
+                        .willThrow(new InvalidTokenException(null));
+
 
     }
 
@@ -112,27 +133,52 @@ class ProductControllerTest {
     }
 
     @Test
-    void create() throws Exception {
+    void createWithValidAttributes() throws Exception {
         mockMvc.perform(
                 post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"outer\",\"maker\":\"goose\",\"price\":10000,\"imageUrl\":\"goose.png\"}")
+                        .header("Authorization", "Bearer " + VALID_TOKEN)
         )
                 .andExpect(status().isCreated())
                 .andExpect(content().string(containsString("goose.png")));
 
         verify(productService).createProduct(any(ProductRequestData.class));
     }
+
     @Test
     void createWithInvalidAttribute() throws Exception {
         mockMvc.perform(
                 post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"\",\"maker\":\"\",\"price\":10000,\"imageUrl\":\"goose.png\"}")
+                        .header("Authorization", "Bearer " + VALID_TOKEN)
 
         )
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void createWithoutAccessToken() throws Exception {
+        mockMvc.perform(
+                post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"outer\",\"maker\":\"goose\",\"price\":10000,\"imageUrl\":\"goose.png\"}")
+        )
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void createWithWrongAccessToken() throws Exception {
+        mockMvc.perform(
+                post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"outer\",\"maker\":\"goose\",\"price\":10000,\"imageUrl\":\"goose.png\"}")
+                        .header("Authorization", "Bearer " + INVALID_TOKEN)
+        )
+                .andExpect(status().isUnauthorized());
+    }
+
 
     @Test
     void updateExistedId() throws Exception {

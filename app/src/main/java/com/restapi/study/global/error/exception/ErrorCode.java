@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum ErrorCode {
 
     // Common
-    INVALID_INPUT_VALUE(400,"C001", "Invalud Input Value"),
+    INVALID_INPUT_VALUE(400,"C001", "Invalid Input Value"),
+    INVALID_TOKEN_VALUE(401, "C002", "Invalid Token Value"),
 
     // Product
     PRODUCT_NOT_FOUND(404, "P001", "Product Not Found"),
