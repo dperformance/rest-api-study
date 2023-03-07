@@ -1,13 +1,20 @@
 package com.restapi.study.application;
 
+import com.restapi.study.domain.User;
+import com.restapi.study.domain.UserRepository;
 import com.restapi.study.exception.InvalidTokenException;
+import com.restapi.study.exception.LoginFailException;
 import com.restapi.study.global.utils.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 class AuthenticationServiceTest {
     private static final String SECRET = "12345678901234567890123456789012";
@@ -18,21 +25,59 @@ class AuthenticationServiceTest {
     private static final String INVALID_TOKEN = "eyJhbGciOiJIUzI1NiJ9." +
                 "eyJ1c2VySWQiOjF9.ZZ3CUl0jxeLGvQ1Js5nG2Ty5qGTlqai5ubDMXZOdaD0";
 
+    private static final String VALID_EMAIL = "valid@gmail.com";
+    private static final String INVALID_EMAIL = "invalid@gmail.com";
+
+    private static final String VALID_PASSWORD = "valid1234";
+    private static final String INVALID_PASSWORD = "invalid1234";
+
     private AuthenticationService authenticationService;
+
+    private UserRepository userRepository = mock(UserRepository.class);
 
     @BeforeEach
     void setUp() {
         JwtUtil JwtUtil = new JwtUtil(SECRET);
 
-        authenticationService = new AuthenticationService(JwtUtil);
+        authenticationService = new AuthenticationService(
+                JwtUtil, userRepository);
+
+        User user = User.builder()
+                .password(VALID_PASSWORD)
+                .build();
+        given(userRepository.findByEmail(VALID_EMAIL))
+                .willReturn(Optional.of(user));
     }
 
     @Test
-    void login() {
-        String accessToken = authenticationService.login();
+    void loginWithRightEmailAndPassword() {
+        String accessToken = authenticationService.login(
+                VALID_EMAIL, VALID_PASSWORD);
 
         assertThat(accessToken).isEqualTo(VALID_TOKEN);
+
+        verify(userRepository).findByEmail(VALID_EMAIL);
     }
+
+    @Test
+    void loginWithWrongEmail() {
+        assertThatThrownBy(() ->
+                authenticationService.login(INVALID_EMAIL, VALID_PASSWORD)
+        ).isInstanceOf(LoginFailException.class);
+
+        verify(userRepository).findByEmail(INVALID_EMAIL);
+    }
+
+    @Test
+    void loginWithWrongPassword() {
+        assertThatThrownBy(() ->
+                authenticationService.login(VALID_EMAIL, INVALID_PASSWORD)
+        ).isInstanceOf(LoginFailException.class);
+
+        verify(userRepository).findByEmail(VALID_EMAIL);
+    }
+
+
 
     @Test
     void parseTokenWithValidToken() {

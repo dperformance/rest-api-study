@@ -27,11 +27,12 @@ public class User {
     private boolean deleted = false;
 
     @Builder
-    public User(Long id, String email, String password, String name) {
+    public User(Long id, String email, String password, String name, boolean deleted) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;
+        this.deleted = deleted;
     }
 
     public void changeWith(User source) {
@@ -40,6 +41,10 @@ public class User {
     }
 
     public void destroy() {
-        this.deleted = true;
+        deleted = true;
+    }
+
+    public boolean authenticate(String password) {
+        return !deleted && password.equals(this.password);
     }
 }

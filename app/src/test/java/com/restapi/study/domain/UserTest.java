@@ -29,4 +29,25 @@ class UserTest {
 
         assertThat(user.isDeleted()).isTrue();
     }
+
+    @Test
+    void authenticate() {
+        User user = User.builder()
+                .password("valid1234")
+                .build();
+
+        assertThat(user.authenticate("valid1234")).isTrue();
+        assertThat(user.authenticate("invalid1234")).isFalse();
+    }
+
+    @Test
+    void authenticateWithDeletedUser() {
+        User user = User.builder()
+                .password("valid1234")
+                .deleted(true)
+                .build();
+
+        assertThat(user.authenticate("valid1234")).isFalse();
+        assertThat(user.authenticate("invalid1234")).isFalse();
+    }
 }

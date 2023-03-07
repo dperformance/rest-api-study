@@ -1,20 +1,35 @@
 package com.restapi.study.application;
 
-import com.restapi.study.exception.InvalidTokenException;
+import com.restapi.study.domain.User;
+import com.restapi.study.domain.UserRepository;
+import com.restapi.study.exception.LoginFailException;
 import com.restapi.study.global.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.security.SignatureException;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthenticationService {
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
-    public AuthenticationService(JwtUtil jwtUtil) {
+    public AuthenticationService(JwtUtil jwtUtil,
+                                 UserRepository userRepository)
+    {
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
-    public String login() {
+    public String login(String email,
+                        String password)
+    {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new LoginFailException(email));
+
+        if (!user.authenticate(password)) {
+            throw new LoginFailException(email);
+        }
 
         return jwtUtil.encode(1L);
     }

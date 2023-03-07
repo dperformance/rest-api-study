@@ -10,4 +10,7 @@ public interface UserRepository {
     Optional<User> findById(Long id);
 
     Optional<User> findByIdAndDeletedIsFalse(Long id);
+
+    Optional<User> findByEmail(String email);
+
 }

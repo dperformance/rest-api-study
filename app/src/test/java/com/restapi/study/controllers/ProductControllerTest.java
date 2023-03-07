@@ -126,9 +126,7 @@ class ProductControllerTest {
     @Test
     void detailWithNotExistedProduct() throws Exception {
         mockMvc.perform(
-                get("/products/{id}", NOT_EXISTED_ID)
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                get("/products/{id}", NOT_EXISTED_ID))
                 .andExpect(status().isNotFound());
     }
 
@@ -137,7 +135,8 @@ class ProductControllerTest {
         mockMvc.perform(
                 post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"outer\",\"maker\":\"goose\",\"price\":10000,\"imageUrl\":\"goose.png\"}")
+                        .content("{\"name\":\"outer\",\"maker\":\"goose\"," +
+                                "\"price\":10000,\"imageUrl\":\"goose.png\"}")
                         .header("Authorization", "Bearer " + VALID_TOKEN)
         )
                 .andExpect(status().isCreated())
@@ -151,7 +150,8 @@ class ProductControllerTest {
         mockMvc.perform(
                 post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"\",\"maker\":\"\",\"price\":10000,\"imageUrl\":\"goose.png\"}")
+                        .content("{\"name\":\"\",\"maker\":\"\"," +
+                                "\"price\":10000,\"imageUrl\":\"goose.png\"}")
                         .header("Authorization", "Bearer " + VALID_TOKEN)
 
         )
@@ -163,7 +163,8 @@ class ProductControllerTest {
         mockMvc.perform(
                 post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"outer\",\"maker\":\"goose\",\"price\":10000,\"imageUrl\":\"goose.png\"}")
+                        .content("{\"name\":\"outer\",\"maker\":\"goose\"," +
+                                "\"price\":10000,\"imageUrl\":\"goose.png\"}")
         )
                 .andExpect(status().isUnauthorized());
     }
@@ -173,12 +174,12 @@ class ProductControllerTest {
         mockMvc.perform(
                 post("/products")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"outer\",\"maker\":\"goose\",\"price\":10000,\"imageUrl\":\"goose.png\"}")
+                        .content("{\"name\":\"outer\",\"maker\":\"goose\"," +
+                                "\"price\":10000,\"imageUrl\":\"goose.png\"}")
                         .header("Authorization", "Bearer " + INVALID_TOKEN)
         )
                 .andExpect(status().isUnauthorized());
     }
-
 
     @Test
     void updateExistedId() throws Exception {
@@ -186,12 +187,39 @@ class ProductControllerTest {
                 patch("/products/{id}", EXISTED_ID)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"outerr\",\"maker\":\"goosee\",\"price\":100000,\"imageUrl\":\"goosee.png\"}")
+                        .content("{\"name\":\"outerr\",\"maker\":\"goosee\",\"price\":100000," +
+                                "\"imageUrl\":\"goosee.png\"}")
+                        .header("Authorization", "Bearer " + VALID_TOKEN)
         )
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("goosee.png")));
 
         verify(productService).updateProduct(eq(EXISTED_ID), any(ProductRequestData.class));
+    }
+
+    @Test
+    void updateWithoutAccessToken() throws Exception {
+        mockMvc.perform(
+                patch("/products/{id}", EXISTED_ID)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"outerr\",\"maker\":\"goosee\",\"price\":100000," +
+                                "\"imageUrl\":\"goosee.png\"}")
+        )
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void updateWithInvalidAccessToken() throws Exception {
+        mockMvc.perform(
+                patch("/products/{id}", EXISTED_ID)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"outerr\",\"maker\":\"goosee\",\"price\":100000," +
+                                "\"imageUrl\":\"goosee.png\"}")
+                        .header("Authorization", "Bearer " + INVALID_TOKEN)
+        )
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -201,6 +229,7 @@ class ProductControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"outerr\",\"maker\":\"goosee\",\"price\":100000,\"imageUrl\":\"goosee.png\"}")
+                        .header("Authorization", "Bearer " + VALID_TOKEN)
         )
                 .andExpect(status().isNotFound());
 
@@ -213,15 +242,17 @@ class ProductControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"\",\"maker\":\"\",\"price\":0,\"imageUrl\":\"goosee.png\"}")
+                        .header("Authorization", "Bearer " + VALID_TOKEN)
         )
                 .andExpect(status().isBadRequest());
 
     }
 
     @Test
-    void deleteExistedId() throws Exception {
+    void destroyWithExistedProduct() throws Exception {
         mockMvc.perform(
           delete("/products/{id}", EXISTED_ID)
+                  .header("Authorization", "Bearer " + VALID_TOKEN)
         )
                 .andExpect(status().isNoContent());
 
@@ -229,9 +260,10 @@ class ProductControllerTest {
     }
 
     @Test
-    void deleteNotExistedId() throws Exception {
+    void destroyWithNotExistedProduct() throws Exception {
         mockMvc.perform(
                 delete("/products/{id}", NOT_EXISTED_ID)
+                        .header("Authorization", "Bearer " + VALID_TOKEN)
         )
                 .andExpect(status().isNotFound());
 
