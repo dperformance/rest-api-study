@@ -7,6 +7,8 @@ import com.restapi.study.exception.LoginFailException;
 import com.restapi.study.global.utils.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -23,7 +25,7 @@ class AuthenticationServiceTest {
             "eyJ1c2VySWQiOjF9.ZZ3CUl0jxeLGvQ1Js5nG2Ty5qGTlqai5ubDMXZOdaDk";
 
     private static final String INVALID_TOKEN = "eyJhbGciOiJIUzI1NiJ9." +
-                "eyJ1c2VySWQiOjF9.ZZ3CUl0jxeLGvQ1Js5nG2Ty5qGTlqai5ubDMXZOdaD0";
+            "eyJ1c2VySWQiOjF9.ZZ3CUl0jxeLGvQ1Js5nG2Ty5qGTlqai5ubDMXZOdaD0";
 
     private static final String VALID_EMAIL = "valid@gmail.com";
     private static final String INVALID_EMAIL = "invalid@gmail.com";
@@ -39,12 +41,15 @@ class AuthenticationServiceTest {
     void setUp() {
         JwtUtil JwtUtil = new JwtUtil(SECRET);
 
-        authenticationService = new AuthenticationService(
-                JwtUtil, userRepository);
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-        User user = User.builder()
-                .password(VALID_PASSWORD)
-                .build();
+        authenticationService = new AuthenticationService(
+                JwtUtil, userRepository, passwordEncoder);
+
+        User user = User.builder().id(1L).build();
+        user.changePassword(VALID_PASSWORD, passwordEncoder);
+
+
         given(userRepository.findByEmail(VALID_EMAIL))
                 .willReturn(Optional.of(user));
     }

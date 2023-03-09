@@ -1,8 +1,13 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:demo
+    url: jdbc:h2:~/data/demo
     username: root
     password: password
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 jwt:
   secret: "12345678901234567890123456789012"

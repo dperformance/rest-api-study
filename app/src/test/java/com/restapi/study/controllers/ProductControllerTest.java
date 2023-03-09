@@ -270,5 +270,29 @@ class ProductControllerTest {
         verify(productService).deleteProduct(eq(NOT_EXISTED_ID));
     }
 
+    @Test
+    void destroyWithoutAccessToken() throws Exception {
+        mockMvc.perform(
+                patch("/products/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"쥐순이\",\"maker\":\"냥이월드\"," +
+                                "\"price\":5000}")
+        )
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void destroyWithInvalidAccessToken() throws Exception {
+        mockMvc.perform(
+                patch("/products/1")
+                        .accept(MediaType.APPLICATION_JSON_UTF8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"쥐순이\",\"maker\":\"냥이월드\"," +
+                                "\"price\":5000}")
+                        .header("Authorization", "Bearer " + INVALID_TOKEN)
+        )
+                .andExpect(status().isUnauthorized());
+    }
+
 
 }

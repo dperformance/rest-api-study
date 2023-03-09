@@ -10,7 +10,10 @@ import com.restapi.study.exception.UserEmailDuplicateException;
 import com.restapi.study.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,9 +40,10 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         userService = new UserService(
-                mapper, userRepository);
+                mapper, userRepository,passwordEncoder);
 
         given(userRepository.existsByEmail(EXISTED_EMAIL_ADDRESS))
                 .willReturn(true);
@@ -102,13 +106,14 @@ class UserServiceTest {
     }
 
     @Test
-    void updateUserWithExistedId() {
+    void updateUserWithExistedId() throws AccessDeniedException {
         UserModificationData modificationData = UserModificationData.builder()
                 .name("UPDATE")
                 .password("update1234")
                 .build();
 
-        User user = userService.updateUser(EXISTED_ID, modificationData);
+        Long userId = 1L;
+        User user = userService.updateUser(EXISTED_ID, modificationData, userId);
 
         assertThat(user.getId()).isEqualTo(EXISTED_ID);
         assertThat(user.getName()).isEqualTo("UPDATE");
@@ -124,7 +129,10 @@ class UserServiceTest {
                 .password("update1234")
                 .build();
 
-        assertThatThrownBy(() -> userService.updateUser(NOT_EXISTED_ID, modificationData))
+        Long userId = NOT_EXISTED_ID;
+        assertThatThrownBy(
+                () -> userService.updateUser(NOT_EXISTED_ID, modificationData, userId)
+        )
                 .isInstanceOf(UserNotFoundException.class);
 
         verify(userRepository).findByIdAndDeletedIsFalse(NOT_EXISTED_ID);
@@ -137,14 +145,30 @@ class UserServiceTest {
                 .password("update1234")
                 .build();
 
+        Long userId = DELETED_USER_ID;
         assertThatThrownBy(
-                () -> userService.updateUser(DELETED_USER_ID, modificationData)
+                () -> userService.updateUser(DELETED_USER_ID, modificationData, userId)
         )
                 .isInstanceOf(UserNotFoundException.class);
 
         verify(userRepository).findByIdAndDeletedIsFalse(DELETED_USER_ID);
     }
 
+    @Test
+    void updateUserByOthersAccess() {
+        UserModificationData modificationData = UserModificationData.builder()
+                .name("UPDATE")
+                .password("update1234")
+                .build();
+
+        Long targetUserId = 1L;
+        Long currentUserId = 2L;
+
+        assertThatThrownBy(
+                () -> userService.updateUser(
+                        targetUserId, modificationData, currentUserId)
+                ).isInstanceOf(AccessDeniedException.class);
+    }
     @Test
     void deleteUserWithExistedId() {
         User user = userService.deleteUser(EXISTED_ID);

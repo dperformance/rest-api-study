@@ -7,6 +7,7 @@ import com.restapi.study.dto.ProductRequestData;
 import com.restapi.study.global.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -54,39 +55,28 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("isAuthenticated() and hasAuthority('USER')")
     public Product create(
-            @RequestHeader("Authorization") String authorization,
             @RequestBody @Valid ProductRequestData productRequestData)
     {
-        String accessToken = authorization.substring("Bearer ".length());
-        authenticationService.parseToken(accessToken);
-
         return productService.createProduct(productRequestData);
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("isAuthenticated() and hasAuthority('USER')")
     public Product update(
-            @RequestHeader("Authorization") String authorization,
             @PathVariable Long id,
             @RequestBody @Valid ProductRequestData productRequestData)
     {
-        String accessToken = authorization.substring("Bearer ".length());
-        authenticationService.parseToken(accessToken);
-
         return productService.updateProduct(id, productRequestData);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("isAuthenticated() and hasAuthority('USER')")
     @ResponseStatus(HttpStatus.NO_CONTENT
     )
     public Product delete(
             @PathVariable Long id) {
        return productService.deleteProduct(id);
-    }
-
-    @ExceptionHandler(MissingRequestHeaderException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public void handleMissingRequestHeaderException() {
-
     }
 }

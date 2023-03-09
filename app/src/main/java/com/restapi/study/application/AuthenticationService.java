@@ -5,6 +5,7 @@ import com.restapi.study.domain.UserRepository;
 import com.restapi.study.exception.LoginFailException;
 import com.restapi.study.global.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,12 +14,15 @@ import java.util.Optional;
 public class AuthenticationService {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthenticationService(JwtUtil jwtUtil,
-                                 UserRepository userRepository)
+                                 UserRepository userRepository,
+                                 PasswordEncoder passwordEncoder)
     {
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public String login(String email,
@@ -27,11 +31,11 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new LoginFailException(email));
 
-        if (!user.authenticate(password)) {
+        if (!user.authenticate(password, passwordEncoder)) {
             throw new LoginFailException(email);
         }
 
-        return jwtUtil.encode(1L);
+        return jwtUtil.encode(user.getId());
     }
 
     public Long parseToken(String accessToken) {
