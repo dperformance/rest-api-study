@@ -2,6 +2,7 @@ package com.restapi.study.controllers;
 
 import com.restapi.study.application.AuthenticationService;
 import com.restapi.study.application.UserService;
+import com.restapi.study.domain.Role;
 import com.restapi.study.domain.User;
 import com.restapi.study.dto.UserModificationData;
 import com.restapi.study.dto.UserRegisterData;
@@ -14,6 +15,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
@@ -102,9 +105,17 @@ class UserControllerTest {
         given(userService.deleteUser(NOT_EXISTED_ID))
                 .willThrow(new UserNotFoundException(NOT_EXISTED_ID));
 
-        given(authenticationService.parseToken(MY_TOKEN)).willReturn(EXISTED_ID);
+        given(authenticationService.parseToken(MY_TOKEN)).willReturn(1L);
         given(authenticationService.parseToken(OTHER_TOKEN)).willReturn(2L);
         given(authenticationService.parseToken(ADMIN_TOKEN)).willReturn(1004L);
+
+        given(authenticationService.roles(1L))
+                .willReturn(Arrays.asList(new Role("USER")));
+        given(authenticationService.roles(2L))
+                        .willReturn(Arrays.asList(new Role("USER")));
+        given(authenticationService.roles(1004L))
+                                .willReturn(Arrays.asList(new Role("USER"),
+                                        new Role("ADMIN")));
     }
 
     @Test

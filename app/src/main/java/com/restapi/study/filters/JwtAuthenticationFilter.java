@@ -1,6 +1,7 @@
 package com.restapi.study.filters;
 
 import com.restapi.study.application.AuthenticationService;
+import com.restapi.study.domain.Role;
 import com.restapi.study.exception.InvalidTokenException;
 import com.restapi.study.security.UserAuthentication;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 

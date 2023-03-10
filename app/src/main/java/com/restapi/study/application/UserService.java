@@ -2,6 +2,8 @@ package com.restapi.study.application;
 
 
 import com.github.dozermapper.core.Mapper;
+import com.restapi.study.domain.Role;
+import com.restapi.study.domain.RoleRepository;
 import com.restapi.study.domain.User;
 import com.restapi.study.domain.UserRepository;
 import com.restapi.study.dto.UserModificationData;
@@ -22,14 +24,18 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    private final RoleRepository roleRepository;
+
     private final PasswordEncoder passwordEncoder;
 
     public UserService (Mapper dozerMapper,
                         UserRepository userRepository,
+                        RoleRepository roleRepository,
                         PasswordEncoder passwordEncoder)
     {
         this.mapper = dozerMapper;
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -43,6 +49,8 @@ public class UserService {
                 mapper.map(userRegisterData, User.class));
 
         user.changePassword(userRegisterData.getPassword(), passwordEncoder);
+
+        roleRepository.save(new Role(user.getId(), "USER"));
 
         return user;
     }

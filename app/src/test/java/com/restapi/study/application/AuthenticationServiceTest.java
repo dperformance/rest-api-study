@@ -1,5 +1,7 @@
 package com.restapi.study.application;
 
+import com.restapi.study.domain.Role;
+import com.restapi.study.domain.RoleRepository;
 import com.restapi.study.domain.User;
 import com.restapi.study.domain.UserRepository;
 import com.restapi.study.exception.InvalidTokenException;
@@ -10,7 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,6 +40,7 @@ class AuthenticationServiceTest {
     private AuthenticationService authenticationService;
 
     private UserRepository userRepository = mock(UserRepository.class);
+    private RoleRepository roleRepository = mock(RoleRepository.class);
 
     @BeforeEach
     void setUp() {
@@ -44,7 +49,7 @@ class AuthenticationServiceTest {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         authenticationService = new AuthenticationService(
-                JwtUtil, userRepository, passwordEncoder);
+                JwtUtil, userRepository, roleRepository, passwordEncoder);
 
         User user = User.builder().id(1L).build();
         user.changePassword(VALID_PASSWORD, passwordEncoder);
@@ -52,6 +57,14 @@ class AuthenticationServiceTest {
 
         given(userRepository.findByEmail(VALID_EMAIL))
                 .willReturn(Optional.of(user));
+
+        given(roleRepository.findAllByUserId(1L))
+                .willReturn(Arrays.asList(new Role("USER")));
+
+        given(roleRepository.findAllByUserId(1004L))
+                        .willReturn(Arrays.asList(
+                                new Role("USER"),
+                                new Role("ADMIN")));
     }
 
     @Test
@@ -107,5 +120,20 @@ class AuthenticationServiceTest {
         assertThatThrownBy(
                 () -> authenticationService.parseToken("")
         ).isInstanceOf(InvalidTokenException.class);
+    }
+
+    @Test
+    void roles() {
+        assertThat(
+                authenticationService.roles(1L).stream()
+                        .map(Role::getName)
+                        .collect(Collectors.toList())
+        ).isEqualTo(Arrays.asList("USER"));
+
+        assertThat(
+                authenticationService.roles(1004L).stream()
+                        .map(Role::getName)
+                        .collect(Collectors.toList())
+        ).isEqualTo(Arrays.asList("USER", "ADMIN"));
     }
 }

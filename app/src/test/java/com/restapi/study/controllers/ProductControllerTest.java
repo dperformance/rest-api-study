@@ -3,6 +3,7 @@ package com.restapi.study.controllers;
 import com.restapi.study.application.AuthenticationService;
 import com.restapi.study.application.ProductService;
 import com.restapi.study.domain.Product;
+import com.restapi.study.domain.Role;
 import com.restapi.study.dto.ProductRequestData;
 import com.restapi.study.exception.InvalidTokenException;
 import com.restapi.study.exception.ProductNotFoundException;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
@@ -99,6 +101,9 @@ class ProductControllerTest {
 
         given(authenticationService.parseToken(null))
                         .willThrow(new InvalidTokenException(null));
+
+        given(authenticationService.roles(1L))
+                .willReturn(Arrays.asList(new Role("USER")));
 
 
     }

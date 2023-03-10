@@ -2,6 +2,8 @@ package com.restapi.study.application;
 
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
+import com.restapi.study.domain.Role;
+import com.restapi.study.domain.RoleRepository;
 import com.restapi.study.domain.User;
 import com.restapi.study.domain.UserRepository;
 import com.restapi.study.dto.UserModificationData;
@@ -36,6 +38,7 @@ class UserServiceTest {
     private UserService userService;
 
     private final UserRepository userRepository = mock(UserRepository.class);
+    private final RoleRepository roleRepository = mock(RoleRepository.class);
 
     @BeforeEach
     void setUp() {
@@ -43,7 +46,7 @@ class UserServiceTest {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         userService = new UserService(
-                mapper, userRepository,passwordEncoder);
+                mapper, userRepository, roleRepository, passwordEncoder);
 
         given(userRepository.existsByEmail(EXISTED_EMAIL_ADDRESS))
                 .willReturn(true);
@@ -89,6 +92,7 @@ class UserServiceTest {
         assertThat(user.getName()).isEqualTo("dyson");
 
         verify(userRepository).save(any(User.class));
+        verify(roleRepository).save(any(Role.class));
     }
 
     @Test
