@@ -16,6 +16,9 @@ plugins {
 
     // Jacoco
     id 'jacoco'
+
+    // Asciidoctor
+    id 'org.asciidoctor.convert' version '2.4.0'
 }
 
 repositories {
@@ -80,6 +83,13 @@ dependencies {
 application {
     // Define the main class for the application.
     mainClass = 'com.restapi.study.App'
+}
+
+javadoc {
+    options.addStringOption("locale","ko_KR");
+    options.addStringOption("encoding","UTF-8");
+    options.addStringOption("charset","UTF-8");
+    options.addStringOption("docencoding","UTF-8");
 }
 
 tasks.named('test') {
