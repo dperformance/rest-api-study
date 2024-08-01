@@ -17,6 +17,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
@@ -110,9 +111,9 @@ class UserControllerTest {
         given(authenticationService.parseToken(ADMIN_TOKEN)).willReturn(1004L);
 
         given(authenticationService.roles(1L))
-                .willReturn(Arrays.asList(new Role("USER")));
+                .willReturn(List.of(new Role("USER")));
         given(authenticationService.roles(2L))
-                        .willReturn(Arrays.asList(new Role("USER")));
+                        .willReturn(List.of(new Role("USER")));
         given(authenticationService.roles(1004L))
                                 .willReturn(Arrays.asList(new Role("USER"),
                                         new Role("ADMIN")));
@@ -132,11 +133,24 @@ class UserControllerTest {
                         containsString("\"email\":\"dyson@naver.com\""))
                 );
 
+
         verify(userService).registerUser(any(UserRegisterData.class));
     }
 
     @Test
     void updateUserWithValidAttribute() throws Exception {
+
+        given(userService.registerUser(any(UserRegisterData.class)))
+                .will(invocation -> {
+                    UserRegisterData userRegisterData =
+                            invocation.getArgument(0);
+                    return User.builder()
+                            .email(userRegisterData.getEmail())
+                            .password(userRegisterData.getPassword())
+                            .name(userRegisterData.getName())
+                            .build();
+                });
+
         mockMvc.perform(
                 patch("/users/{id}", EXISTED_ID)
                         .contentType(MediaType.APPLICATION_JSON)

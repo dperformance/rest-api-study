@@ -7,8 +7,8 @@ import com.restapi.study.domain.Role;
 import com.restapi.study.dto.ProductRequestData;
 import com.restapi.study.exception.InvalidTokenException;
 import com.restapi.study.exception.ProductNotFoundException;
-import com.restapi.study.global.utils.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,10 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -136,6 +133,7 @@ class ProductControllerTest {
     }
 
     @Test
+    @DisplayName("Product를 생성하고 유효한 토큰인지 확인하라")
     void createWithValidAttributes() throws Exception {
         mockMvc.perform(
                 post("/products")

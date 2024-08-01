@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.nio.file.AccessDeniedException;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -59,7 +60,7 @@ public class UserService {
     public User updateUser(Long id,
                            UserModificationData userModificationData,
                            Long userId) throws AccessDeniedException {
-        if (id != userId) {
+        if (!Objects.equals(id, userId)) {
             throw new AccessDeniedException("Access Denided");
         }
 
@@ -84,4 +85,6 @@ public class UserService {
         return userRepository.findByIdAndDeletedIsFalse(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
+
+
 }

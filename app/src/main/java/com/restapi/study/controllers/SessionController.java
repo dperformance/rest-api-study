@@ -33,6 +33,5 @@ public class SessionController {
         return SessionResponseData.builder()
                 .accessToken(accessToken)
                 .build();
-
     }
 }
